@@ -1,0 +1,16 @@
+<div *ngIf="change == true">
+  <c-toast #toast="cToast" id="toast" [autohide]="true" [visible]="true" class="align-items-end" color="success">
+    <div class="d-flex">
+      <c-toast-body>
+        <h5 class="mb-0">
+          <svg [cIcon]="icons.cilCheckCircle" size="l" title="List Icon"></svg>
+          <span>Success</span>
+        </h5>
+        <span>Change Successfully!!</span>
+        <c-progress thin>
+          <c-progress-bar [value]=""></c-progress-bar>
+        </c-progress>
+      </c-toast-body>
+    </div>
+  </c-toast>
+</div>

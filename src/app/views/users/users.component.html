@@ -1,0 +1,458 @@
+<c-row ngPreserveWhitespaces>
+  <c-col class="background-while shadow ml-1 mr-1">
+    <!-- <c-container> -->
+      <c-row>
+        <c-col>
+          <c-card-header>
+            <h4 class="card-title mb-0">User</h4>
+          </c-card-header>
+        </c-col>
+        <c-col>
+          <c-card-header style="float: right">
+            <button
+              [cModalToggle]="verticallyCenteredModal.id"
+              cButton
+              color="dark"
+              (click)="LoadForm()"
+            >
+              <svg [cIcon]="icons.cilPlus" size="sm" title="List Icon"></svg>
+              Add
+            </button>
+            <button cButton color="dark" id="btnDelete" disabled="{{ selectedIds.length == 0 }}" (click)="deleteUsers()">
+              <svg [cIcon]="icons.cilTrash" size="sm" title="List Icon"></svg>
+              Delete
+            </button>
+
+          </c-card-header>
+        </c-col>
+      </c-row>
+    <!-- </c-container> -->
+    <c-card-body>
+      <div class="table-container">
+        <table cTable class="m-table" hover>
+          <thead>
+            <tr>
+              <th scope="col">
+                <input
+                  id="checkOne"
+                  type="checkbox"
+                  [(ngModel)]="selectAll"
+                  (change)="toggleSelectAll()"
+                />
+              </th>
+              <th scope="col">Username</th>
+              <th scope="col">Role</th>
+              <th scope="col">Fullname</th>
+              <th scope="col">Status</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="data">
+            <tr *ngFor="let item of data; let i = index">
+              <th scope="row">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(item.id)"
+                  id="check{{ item.id }}"
+                  [(ngModel)]="checkboxes[item.id]"
+                  (change)="getId(item.id)"
+                />
+              </th>
+              <td>
+                {{ item.email }}
+              </td>
+              <td>
+                {{ item.role }}
+              </td>
+              <td>
+                {{ item.name }}
+              </td>
+              <td>
+                <c-form-check [switch]="true" *ngIf="item.status == 1">
+                  <input
+                    cFormCheckInput
+                    checked
+                    type="checkbox"
+                    id="status{{ item.id }}"
+                    (change)="changeStatus(item.id, item.status)"
+                  />
+                </c-form-check>
+                <c-form-check [switch]="true" *ngIf="item.status == 0">
+                  <input
+                    cFormCheckInput
+                    type="checkbox"
+                    id="status{{ item.id }}"
+                    (change)="changeStatus(item.id, item.status)"
+                  />
+                </c-form-check>
+              </td>
+              <td>
+                <button
+                  [cModalToggle]="modal.id"
+                  cButton
+                  color="light"
+                  (click)="getUser(item.id)"
+                  cTooltip="Edit"
+                  cTooltipPlacement="top"
+                >
+                  <svg
+                    [cIcon]="icons.cilPencil"
+                    size="sm"
+                    title="List Icon"
+                  ></svg>
+                </button>
+                <button 
+                  cButton 
+                  (click)="delete(item.id)"  
+                  color="light"
+                  cTooltip="Delete"
+                  cTooltipPlacement="top"
+                  >
+                  <svg
+                    [cIcon]="icons.cilTrash"
+                    size="sm"
+                    title="List Icon"
+                  ></svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </c-card-body>
+    <c-card-footer *ngIf="total && total.length > 1">
+      <c-pagination aria-label="Page navigation example" size="sm">
+        <li cPageItem>
+          <a
+            cPageLink
+            aria-label="Previous"
+            id="btnPrevious"
+            (click)="previousPage()"
+          >
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li cPageItem *ngFor="let page of total" [class.active]="page == pages">
+          <a cPageLink (click)="getUsers(page)">
+            {{ page }}
+          </a>
+        </li>
+
+        <li cPageItem>
+          <a cPageLink aria-label="Next" id="btnNext" (click)="nextPage()">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </c-pagination>
+    </c-card-footer>
+  </c-col>
+</c-row>
+
+<c-modal
+#verticallyCenteredModal
+alignment="center"
+id="verticallyCenteredModal"
+>
+<c-modal-header>
+  <h5 cModalTitle>Add New Account</h5>
+  <button
+    [cModalToggle]="verticallyCenteredModal.id"
+    cButtonClose
+  ></button>
+</c-modal-header>
+<form 
+  (ngSubmit)="onSubmit()" 
+  #browserDefaultsForm="ngForm"
+  [gutter]="3"
+  cForm
+  cRow
+  ngNativeValidate
+>
+  <c-modal-body>
+    <div class="mb-3">
+      <c-alert color="danger" *ngIf="msg || msgPW || msgEmail" style="text-align: center;">
+        {{ msgPW }}
+        {{ msgEmail }} <br />
+        <span *ngFor="let i of msg">
+          {{ i.msg }} <br />
+        </span>
+      </c-alert>
+    </div>
+    <div class="mb-3" *ngIf="dataGroup">
+      <label cLabel for="group">Group <span class="text-danger">*</span></label>
+      <select
+          aria-label="group"
+          name="group"
+          cSelect
+          *ngIf="dataGroup"
+          required
+          [value]="formData.group"
+          [(ngModel)]="formData.group"
+        >
+          <option value="">-- Select Group --</option>
+          <option *ngFor="let item of dataGroup" [value]="item.id">{{ item.name }}</option>
+        </select>
+    </div>
+    <!-- <div class="mb-3" *ngIf="dataDepartment && checkRole(1)">
+      <label cLabel for="group">Department <span class="text-danger">*</span></label>
+      <select
+          aria-label="group"
+          name="group"
+          cSelect
+          *ngIf="dataDepartment"
+          required
+          [value]="formData.department_id"
+          [(ngModel)]="formData.department_id"
+        >
+          <option value="">-- Select Department --</option>
+          <option *ngFor="let item of dataDepartment" [value]="item.id">{{ item.name }}</option>
+        </select>
+    </div> -->
+    <div class="mb-3">
+      <label cLabel for="name">Username <span class="text-danger">*</span></label>
+      <c-input-group class="has-validation">
+        <input
+          aria-label="username"
+          [value]="formData.email"
+          [(ngModel)]="formData.email"
+          name="email"
+          cFormControl
+          placeholder="email"
+          required
+        />
+        <c-form-feedback [valid]="false">Please provide a valid username.</c-form-feedback>
+      </c-input-group>
+    </div>
+
+    <div class="mb-3">
+      <label cLabel for="address">Password <span class="text-danger">*</span></label>
+      <input
+        aria-label="password"
+        [value]="formData.password"
+        [(ngModel)]="formData.password"
+        type="password"
+        name="password"
+        cFormControl
+        placeholder="password"
+        required
+      />
+    </div>
+    <div class="mb-3">
+      <label cLabel for="address">Confirm password <span class="text-danger">*</span></label>
+      <input
+        aria-label="c_password"
+        [value]="formData.c_password"
+        [(ngModel)]="formData.c_password"
+        type="password"
+        name="c_password"
+        cFormControl
+        placeholder="confirm password"
+        required
+      />
+    </div>
+    <c-row class="mb-3">
+      <c-col>
+        <label cLabel for="fullname">Fullname <span class="text-danger">*</span></label>
+        <input
+          aria-label="fullname"
+          [value]="formData.name"
+          [(ngModel)]="formData.name"
+          name="name"
+          cFormControl
+          placeholder="name"
+          required
+        />
+      </c-col>
+    </c-row>
+    <c-row class="mb-3">
+      <c-col>
+        <label cLabel for="phone">Phone <span class="text-danger">*</span></label>
+        <input
+          aria-label="phone"
+          [value]="formData.phone"
+          [(ngModel)]="formData.phone"
+          name="phone"
+          cFormControl
+          placeholder="phone"
+          (keydown)="onKeyPress($event)"
+          required
+        />
+      </c-col>
+      <c-col>
+        <label cLabel for="role">Role <span class="text-danger">*</span></label>
+        <select
+          aria-label="role"
+          name="role"
+          cSelect
+          required
+          [value]="formData.role"
+          [(ngModel)]="formData.role"
+          *ngIf="dataRole"
+        >
+          <option value="">-- Select Role --</option>
+          <option *ngFor="let item of dataRole" [value]="item.id">{{ item.name }}</option>
+        </select>
+      </c-col>
+    </c-row>
+  </c-modal-body>
+  <c-modal-footer>
+    <button
+      [cModalToggle]="verticallyCenteredModal.id"
+      cButton
+      color="secondary"
+      id="closeBtn"
+    >
+      Close
+    </button>
+    <button cButton color="primary" type="submit" class="me-1">Save</button>
+  </c-modal-footer>
+</form>
+</c-modal>
+
+<c-modal #modal alignment="center" id="modal">
+  <c-modal-header>
+    <h5 cModalTitle>Edit Group</h5>
+    <button [cModalToggle]="modal.id" cButtonClose></button>
+  </c-modal-header>
+  <form (ngSubmit)="editUser()">
+    <c-modal-body>
+      <div class="mb-3">
+        <c-alert color="danger" *ngIf="msg || msgPW" style="text-align: center;">
+          <span *ngFor="let i of msg">
+            {{ msgPW }} <br />
+            {{ i.msg }} <br />
+          </span>
+        </c-alert>
+      </div>
+      <div class="mb-3" *ngIf="dataGroup">
+        <label cLabel for="group">Group <span class="text-danger">*</span></label>
+        <select
+            aria-label="group"
+            name="group"
+            cSelect
+            *ngIf="dataUser"
+            required
+            [value]="dataUser.group"
+            [(ngModel)]="dataUser.group"
+          >
+            <option value="">-- Select Group --</option>
+            <option *ngFor="let item of dataGroup" [value]="item.id">{{ item.name }}</option>
+          </select>
+      </div>
+      <!-- <div class="mb-3" *ngIf="dataDepartment">
+        <label cLabel for="group">Department <span class="text-danger">*</span></label>
+        <select
+            aria-label="group"
+            name="group"
+            cSelect
+            *ngIf="dataDepartment && checkRole(1)"
+            required
+            [value]="dataUser.department_id"
+            [(ngModel)]="dataUser.department_id"
+          >
+            <option value="">-- Select Department --</option>
+            <option *ngFor="let item of dataDepartment" [value]="item.id">{{ item.name }}</option>
+          </select>
+      </div> -->
+      <div class="mb-3">
+        <label cLabel for="name">Username <span class="text-danger">*</span></label>
+        <c-input-group class="has-validation">
+          <input
+            aria-label="username"
+            [value]="dataUser.email"
+            [(ngModel)]="dataUser.email"
+            name="email"
+            cFormControl
+            placeholder="email"
+            required
+          />
+          <c-form-feedback [valid]="false">Please provide a valid username.</c-form-feedback>
+        </c-input-group>
+      </div>
+      <c-row class="mb-3">
+        <c-col md="8">
+          <label cLabel for="address">Password <span class="text-danger">*</span></label>
+          <input
+            aria-label="password"
+            [value]="dataUser.password"
+            [(ngModel)]="dataUser.password"
+            type="password"
+            name="password"
+            cFormControl
+            placeholder="password"
+            [disabled]="checkPassword"
+          />
+        </c-col>
+        <c-col xs="6" md="4">
+          <br />
+          <c-form-check>
+            <input
+              cFormCheckInput
+              type="checkbox"
+              id="checkPassword"
+              (change)="checkPassword = !checkPassword"
+            />
+            <label cFormCheckLabel  for="checkPassword"> Change</label>
+          </c-form-check>
+        </c-col>
+      </c-row>
+      <c-row class="mb-3">
+        <c-col>
+          <label cLabel for="fullname">Fullname <span class="text-danger">*</span></label>
+          <input
+            aria-label="fullname"
+            [value]="dataUser.name"
+            [(ngModel)]="dataUser.name"
+            name="name"
+            cFormControl
+            placeholder="name"
+            required
+          />
+        </c-col>
+      </c-row>
+      <c-row class="mb-3">
+        <c-col>
+          <label cLabel for="phone">Phone <span class="text-danger">*</span></label>
+          <input
+            aria-label="phone"
+            [value]="dataUser.phone"
+            [(ngModel)]="dataUser.phone"
+            name="phone"
+            cFormControl
+            placeholder="phone"
+            (keydown)="onKeyPress($event)"
+            required
+          />
+        </c-col>
+        <c-col>
+          <label cLabel for="role">Role <span class="text-danger">*</span></label>
+          <select
+            aria-label="role"
+            name="role"
+            cSelect
+            required
+            [value]="dataUser.role"
+            [(ngModel)]="dataUser.role"
+            *ngIf="dataRole"
+          >
+            <option value="">-- Select Role --</option>
+            <option *ngFor="let item of dataRole" [value]="item.id">{{ item.name }}</option>
+          </select>
+        </c-col>
+      </c-row>
+    </c-modal-body>
+    <c-modal-footer>
+      <button
+        [cModalToggle]="modal.id"
+        cButton
+        color="secondary"
+        id="closeBtnEdit"
+      >
+        Cldose
+      </button>
+      <button cButton color="primary" type="submit">
+        Save changes
+      </button>
+    </c-modal-footer>
+  </form>
+</c-modal>

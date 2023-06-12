@@ -1,0 +1,432 @@
+<c-row ngPreserveWhitespaces>
+  <c-col  class="px-3 shadow background-while ml-1 mr-1">
+    <!-- <c-container> -->
+      <c-row>
+        <c-col>
+          <c-card-header>
+            <h4 class="card-title mb-0">Department</h4>
+          </c-card-header>
+        </c-col>
+        <c-col>
+          <c-card-header style="float: right">
+            <button
+              [cModalToggle]="verticallyCenteredModal.id"
+              cButton
+              color="dark"
+            >
+              <svg [cIcon]="icons.cilPlus" size="sm" title="List Icon"></svg>
+              Add
+            </button>
+            <button
+              cButton
+              color="dark"
+              (click)="deleteDepartments()"
+              id="btnDelete"
+              disabled="{{ selectedIds.length == 0 }}"
+            >
+              <svg [cIcon]="icons.cilTrash" size="sm" title="List Icon"></svg>
+              Delete
+            </button>
+          </c-card-header>
+        </c-col>
+      </c-row>
+    <!-- </c-container> -->
+    <c-card-body>
+      <div class="table-container">
+        <table cTable class="m-table" hover>
+          <thead>
+            <tr>
+              <th scope="col">
+                <input
+                  id="checkOne"
+                  type="checkbox"
+                  [(ngModel)]="selectAll"
+                  (change)="toggleSelectAll()"
+                />
+              </th>
+              <th scope="col">Name</th>
+              <!-- <th scope="col">Group</th> -->
+              <th scope="col">Description</th>
+              <th scope="col">Status</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="data">
+            <tr *ngFor="let item of data; let i = index">
+              <th scope="row">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(item.id)"
+                  id="check{{ item.id }}"
+                  [(ngModel)]="checkboxes[item.id]"
+                  (change)="getId(item.id)"
+                />
+              </th>
+              <td>
+                {{ item.name }}
+              </td>
+              <!-- <td>
+                {{ item.group }}
+              </td> -->
+              <td>
+                {{ item.description? item.description : '-' }}
+              </td>
+              <td>
+                <c-form-check [switch]="true" *ngIf="item.status == 1">
+                  <input
+                    cFormCheckInput
+                    checked
+                    type="checkbox"
+                    id="status{{ item.id }}"
+                    (change)="changeStatus(item.id, item.status)"
+                  />
+                </c-form-check>
+                <c-form-check [switch]="true" *ngIf="item.status == 0">
+                  <input
+                    cFormCheckInput
+                    type="checkbox"
+                    id="status{{ item.id }}"
+                    (change)="changeStatus(item.id, item.status)"
+                  />
+                </c-form-check>
+              </td>
+              <td>
+                <button
+                  [cModalToggle]="modal.id"
+                  cButton
+                  (click)="getByID(item.id)"
+                  color="light"
+                  cTooltip = "Edit"
+                  cTooltipPlacement="top"
+                >
+                  <svg
+                    [cIcon]="icons.cilPencil"
+                    size="sm"
+                    title="List Icon"
+                  ></svg>
+                </button>
+                <button 
+                  (click)="deleteDepartment(item.id)" 
+                  cButton 
+                  color="light"
+                  cTooltip = "Delete"
+                  cTooltipPlacement="top"
+                  >
+                  <svg
+                    [cIcon]="icons.cilTrash"
+                    size="sm"
+                    title="List Icon"
+                  ></svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </c-card-body>
+    <c-card-footer *ngIf="total && total.length > 1">
+      <c-pagination aria-label="Page navigation example" size="sm">
+        <li cPageItem>
+          <a
+            cPageLink
+            aria-label="Previous"
+            id="btnPrevious"
+            (click)="previousPage()"
+          >
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li cPageItem *ngFor="let page of total" [class.active]="page == pages">
+          <a cPageLink (click)="getDepartments(page)">
+            {{ page }}
+          </a>
+        </li>
+
+        <li cPageItem>
+          <a cPageLink aria-label="Next" id="btnNext" (click)="nextPage()">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </c-pagination>
+    </c-card-footer>
+  </c-col>
+</c-row>
+<c-modal
+  #verticallyCenteredModal
+  alignment="center"
+  id="verticallyCenteredModal"
+>
+  <c-modal-header>
+    <h5 cModalTitle>Create Department</h5>
+    <button [cModalToggle]="verticallyCenteredModal.id" cButtonClose></button>
+  </c-modal-header>
+  <form (ngSubmit)="onSubmit()" ngNativeValidate>
+    <c-modal-body *ngIf="formData">
+      <div class="mb-3">
+        <label cLabel for="name">Name <span class="text-danger">*</span></label>
+        <input
+          aria-label="name"
+          [value]="formData.name"
+          [(ngModel)]="formData.name"
+          name="name"
+          cFormControl
+          placeholder="name"
+          required
+        />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="description">Description</label>
+        <textarea
+          aria-label="description"
+          type="textarea"
+          [value]="formData.description"
+          [(ngModel)]="formData.description"
+          name="description"
+          cFormControl
+          placeholder="description"
+        >
+        </textarea>
+      </div>
+    </c-modal-body>
+    <c-modal-footer>
+      <button
+        [cModalToggle]="verticallyCenteredModal.id"
+        cButton
+        color="secondary"
+        id="closeBtn"
+      >
+        Close
+      </button>
+      <button cButton color="primary" type="submit">Save</button>
+    </c-modal-footer>
+  </form>
+</c-modal>
+
+<c-modal #modal alignment="center" id="modal">
+  <c-modal-header>
+    <h5 cModalTitle>Edit Department</h5>
+    <button [cModalToggle]="modal.id" cButtonClose></button>
+  </c-modal-header>
+  <form (ngSubmit)="edit()" ngNativeValidate>
+    <c-modal-body *ngIf="getDepartmentbyId">
+      <div class="mb-3">
+        <label cLabel for="name">Name <span class="text-danger">*</span></label>
+        <input
+          aria-label="name"
+          [value]="getDepartmentbyId.name"
+          [(ngModel)]="getDepartmentbyId.name"
+          name="name"
+          cFormControl
+          placeholder="name"
+          required
+        />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="description">Description</label>
+        <textarea
+          aria-label="description"
+          type="textarea"
+          [value]="getDepartmentbyId.description"
+          [(ngModel)]="getDepartmentbyId.description"
+          name="description"
+          cFormControl
+          placeholder="description"
+        >
+        </textarea>
+      </div>
+    </c-modal-body>
+    <c-modal-footer>
+      <button [cModalToggle]="modal.id" cButton color="secondary" id="closeBtnEdit">
+        Cldose
+      </button>
+      <button cButton color="primary" type="submit">Save changes</button>
+    </c-modal-footer>
+  </form>
+</c-modal>
+
+<c-row ngPreserveWhitespaces class="px-3">
+  <c-col class="background-while shadow mr-1">
+    <!-- <c-container> -->
+      <c-row>
+        <c-col>
+          <c-card-header>
+            <h4 class="card-title mb-0">User</h4>
+          </c-card-header>
+        </c-col>
+        <c-col>
+          <c-card-header style="float: right">
+            <button
+              cButton
+              color="dark"
+              disabled={{checkDisableUser()}}
+              (click)="addDepartmentInUser()"
+            >
+              <svg [cIcon]="icons.cilPlus" size="sm" title="List Icon"></svg>
+              Add
+            </button>
+          </c-card-header>
+        </c-col>
+      </c-row>
+    <!-- </c-container> -->
+    <c-card-body>
+      <div class="table-container">
+        <table cTable class="m-table" hover>
+          <thead>
+            <tr>
+              <th scope="col">
+                <input
+                  id="checkOne"
+                  type="checkbox"
+                  [(ngModel)]="selectAllUser"
+                  (change)="toggleSelectAllUser()"
+                />
+              </th>
+              <th scope="col">Name</th>
+              <th scope="col">Department</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="dataUser">
+            <tr *ngFor="let item of dataUser; let i = index">
+              <th scope="row">
+                <input
+                  type="checkbox"
+                  [checked]="isSelectedUser(item.id)"
+                  id="check{{ item.id }}"
+                  [(ngModel)]="checkboxesUser[item.id]"
+                  (change)="getIdUser(item.id)"
+                />
+              </th>
+              <td>
+                {{ item.name }}
+              </td>
+              <td>
+                {{ item.department? item.department : '-' }}
+              </td>
+              <td>
+                {{ item.status == 1 ? 'Active' : 'Inactive' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </c-card-body>
+    <c-card-footer *ngIf="totalUser && totalUser.length > 1">
+      <c-pagination aria-label="Page navigation example" size="sm">
+        <li cPageItem>
+          <a
+            cPageLink
+            aria-label="Previous"
+            id="btnPreviousUser"
+            (click)="preiousPageUser()"
+          >
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li cPageItem *ngFor="let page of totalUser" [class.active]="page == pagesUser">
+          <a cPageLink (click)="getUsers(page)">
+            {{ page }}
+          </a>
+        </li>
+
+        <li cPageItem>
+          <a cPageLink aria-label="Next" id="btnNextUser" (click)="nextPageUser()">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </c-pagination>
+    </c-card-footer>
+  </c-col>
+  <c-col class="background-while shadow">
+    <!-- <c-container> -->
+      <c-row>
+        <c-col>
+          <c-card-header>
+            <h4 class="card-title mb-0">User</h4>
+          </c-card-header>
+        </c-col>
+        <c-col>
+          <c-card-header style="float: right">
+            <button
+            cButton
+            color="dark"
+            disabled="{{ selectedIdsUser1.length == 0 }}"
+            (click)="deleteDepartmentInUser()"
+          >
+            <svg [cIcon]="icons.cilTrash" size="sm" title="List Icon"></svg>
+            Delete
+          </button>
+          </c-card-header>
+        </c-col>
+      </c-row>
+    <!-- </c-container> -->
+    <c-card-body>
+      <div class="table-container">
+        <table cTable class="m-table" hover>
+          <thead>
+            <tr>
+              <th scope="col">
+                <input
+                  id="checkOne"
+                  type="checkbox"
+                  [(ngModel)]="selectAllUser1"
+                  (change)="toggleSelectAllUser1()"
+                />
+              </th>
+              <th scope="col">Name</th>
+              <th scope="col">Department</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="dataUser1">
+            <tr *ngFor="let item of dataUser1; let i = index">
+              <th scope="row">
+                <input
+                  type="checkbox"
+                  [checked]="isSelectedUser1(item.id)"
+                  id="check{{ item.id }}"
+                  [(ngModel)]="checkboxesUser[item.id]"
+                  (change)="getIdUser1(item.id)"
+                />
+              </th>
+              <td>
+                {{ item.name }}
+              </td>
+              <td>
+                {{ item.department? item.department : '-' }}
+              </td>
+              <td>
+                {{ item.status == 1 ? 'Active' : 'Inactive' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </c-card-body>
+    <c-card-footer *ngIf="totalUser1 && totalUser1.length > 1">
+      <c-pagination aria-label="Page navigation example" size="sm">
+        <li cPageItem>
+          <a
+            cPageLink
+            aria-label="Previous"
+            id="btnPrevious"
+            (click)="preiousPageUser1()"
+          >
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li cPageItem *ngFor="let page of totalUser1" [class.active]="page == pagesUser1">
+          <a cPageLink (click)="getUsers1(page)">
+            {{ page }}
+          </a>
+        </li>
+
+        <li cPageItem>
+          <a cPageLink aria-label="Next" id="btnNext" (click)="nextPageUser1()">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </c-pagination>
+    </c-card-footer>
+  </c-col>
+</c-row>

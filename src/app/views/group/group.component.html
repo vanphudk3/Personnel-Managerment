@@ -1,0 +1,368 @@
+<c-row ngPreserveWhitespaces>
+  <c-col xs="12">
+    <c-container>
+      <c-row>
+        <c-col>
+          <c-card-header>
+            <h4 class="card-title mb-0">Group</h4>
+          </c-card-header>
+        </c-col>
+        <c-col>
+          <c-card-header style="float: right">
+            <button
+              [cModalToggle]="verticallyCenteredModal.id"
+              cButton
+              color="dark"
+            >
+              <svg [cIcon]="icons.cilPlus" size="sm" title="List Icon"></svg>
+              Add
+            </button>
+            <button
+              cButton
+              color="dark"
+              (click)="deleteGroups()"
+              id="btnDelete"
+              disabled="{{ selectedIds.length == 0 }}"
+            >
+              <svg [cIcon]="icons.cilTrash" size="sm" title="List Icon"></svg>
+              Delete
+            </button>
+          </c-card-header>
+        </c-col>
+      </c-row>
+    </c-container>
+    <c-card-body>
+      <div class="table-container">
+        <table cTable class="m-table" hover>
+          <thead>
+            <tr>
+              <th scope="col">
+                <input
+                  id="checkOne"
+                  type="checkbox"
+                  [(ngModel)]="selectAll"
+                  (change)="toggleSelectAll()"
+                />
+              </th>
+              <th scope="col">Name</th>
+              <th scope="col">Address</th>
+              <th scope="col">Phone</th>
+              <th scope="col">Email</th>
+              <th scope="col">Website</th>
+              <!-- <th scope="col">Logo</th> -->
+              <th scope="col">Description</th>
+              <th scope="col">Status</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="data">
+            <tr *ngFor="let item of data; let i = index">
+              <th scope="row">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(item.id)"
+                  id="check{{ item.id }}"
+                  [(ngModel)]="checkboxes[item.id]"
+                  (change)="getId(item.id)"
+                />
+              </th>
+              <td>
+                {{ item.name }}
+              </td>
+              <td>
+                {{ item.address }}
+              </td>
+              <td>
+                {{ item.phone }}
+              </td>
+              <td>
+                {{ item.email }}
+              </td>
+              <td>
+                {{ item.website }}
+              </td>
+              <!-- <td>
+                {{ item.logo }}
+              </td> -->
+              <td>
+                {{
+                  cutstr(item.description, 10)
+                    ? cutstr(item.description, 10)
+                    : "-"
+                }}
+              </td>
+              <td>
+                <c-form-check [switch]="true" *ngIf="item.status == 1">
+                  <input
+                    cFormCheckInput
+                    checked
+                    type="checkbox"
+                    id="status{{ item.id }}"
+                    (change)="changeStatus(item.id, item.status)"
+                  />
+                </c-form-check>
+                <c-form-check [switch]="true" *ngIf="item.status == 0">
+                  <input
+                    cFormCheckInput
+                    type="checkbox"
+                    id="status{{ item.id }}"
+                    (change)="changeStatus(item.id, item.status)"
+                  />
+                </c-form-check>
+              </td>
+              <td>
+                <button
+                  [cModalToggle]="modal.id"
+                  cButton
+                  (click)="openModal(item.id)"
+                  color="light"
+                  cTooltip = "Edit"
+                  cTooltipPlacement="top"
+                >
+                  <svg
+                    [cIcon]="icons.cilPencil"
+                    size="sm"
+                    title="List Icon"
+                  ></svg>
+                </button>
+                <button 
+                  (click)="delete(item.id)" 
+                  cButton 
+                  color="light"
+                  cTooltip = "Delete"
+                  cTooltipPlacement="top"
+                  >
+                  <svg
+                    [cIcon]="icons.cilTrash"
+                    size="sm"
+                    title="List Icon"
+                  ></svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </c-card-body>
+    <c-card-footer *ngIf="total && total.length > 1">
+      <c-pagination aria-label="Page navigation example" size="sm">
+        <li cPageItem>
+          <a
+            cPageLink
+            aria-label="Previous"
+            id="btnPrevious"
+            (click)="previousPage()"
+          >
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li cPageItem *ngFor="let page of total" [class.active]="page == pages">
+          <a cPageLink (click)="getGroups(page)">
+            {{ page }}
+          </a>
+        </li>
+
+        <li cPageItem>
+          <a cPageLink aria-label="Next" id="btnNext" (click)="nextPage()">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </c-pagination>
+    </c-card-footer>
+  </c-col>
+</c-row>
+
+<c-modal
+  #verticallyCenteredModal
+  alignment="center"
+  id="verticallyCenteredModal"
+>
+  <c-modal-header>
+    <h5 cModalTitle>Create Group</h5>
+    <button [cModalToggle]="verticallyCenteredModal.id" cButtonClose></button>
+  </c-modal-header>
+  <form (ngSubmit)="onsubmit()">
+    <c-modal-body>
+      <div class="mb-3">
+        <label cLabel for="name">Name <span class="text-danger">*</span></label>
+        <input
+          aria-label="name"
+          [value]="formData.name"
+          [(ngModel)]="formData.name"
+          name="name"
+          cFormControl
+          placeholder="name"
+        />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="address">Address <span class="text-danger">*</span></label>
+        <input
+          aria-label="address"
+          [value]="formData.address"
+          [(ngModel)]="formData.address"
+          name="address"
+          cFormControl
+          placeholder="address"
+        />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="phone">Phone <span class="text-danger">*</span></label>
+        <input
+          aria-label="phone"
+          [value]="formData.phone"
+          [(ngModel)]="formData.phone"
+          name="phone"
+          cFormControl
+          placeholder="phone"
+          (keydown)="onKeyPress($event)"
+        />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="email">Email <span class="text-danger">*</span></label>
+        <input
+          aria-label="email"
+          [value]="formData.email"
+          [(ngModel)]="formData.email"
+          name="email"
+          cFormControl
+          placeholder="email"
+        />
+      </div>
+      <c-row class="mb-3">
+        <c-col>
+          <label cLabel for="website">Website <span class="text-danger">*</span></label>
+          <input
+            aria-label="website"
+            [value]="formData.website"
+            [(ngModel)]="formData.website"
+            name="website"
+            cFormControl
+            placeholder="website"
+          />
+        </c-col>
+        <c-col>
+          <label cLabel for="Date">Date active <span class="text-danger">*</span></label>
+          <input
+            aria-label="Date"
+            [value]="formData.date"
+            [(ngModel)]="formData.date"
+            name="date"
+            cFormControl
+            placeholder="Date"
+            type="date"
+          />
+        </c-col>
+      </c-row>
+      <div class="mb-3">
+        <label cLabel for="description">Description</label>
+        <textarea
+          aria-label="description"
+          type="textarea"
+          [value]="formData.description"
+          [(ngModel)]="formData.description"
+          name="description"
+          cFormControl
+          placeholder="description"
+        >
+        </textarea>
+      </div>
+    </c-modal-body>
+    <c-modal-footer>
+      <button
+        [cModalToggle]="verticallyCenteredModal.id"
+        cButton
+        color="secondary"
+        id="closeBtn"
+      >
+        Close
+      </button>
+      <button cButton color="primary" type="submit">Save</button>
+    </c-modal-footer>
+  </form>
+</c-modal>
+
+<c-modal #modal alignment="center" id="modal">
+  <c-modal-header>
+    <h5 cModalTitle>Edit Group</h5>
+    <button [cModalToggle]="modal.id" cButtonClose></button>
+  </c-modal-header>
+  <form (ngSubmit)="edit()">
+    <c-modal-body *ngIf="getGroupbyId">
+      <div class="mb-3">
+        <label cLabel for="name">Name</label>
+        <input
+          aria-label="name"
+          [value]="getGroupbyId.name"
+          [(ngModel)]="getGroupbyId.name"
+          name="name"
+          cFormControl
+          placeholder="name"
+        />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="address">Address</label>
+        <input
+          aria-label="address"
+          [value]="getGroupbyId.address"
+          [(ngModel)]="getGroupbyId.address"
+          name="address"
+          cFormControl
+          placeholder="address"
+        />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="phone">Phone</label>
+        <input
+          aria-label="phone"
+          [value]="getGroupbyId.phone"
+          [(ngModel)]="getGroupbyId.phone"
+          name="phone"
+          cFormControl
+          placeholder="phone"
+          (keydown)="onKeyPress($event)"
+        />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="email">Email</label>
+        <input
+          aria-label="email"
+          [value]="getGroupbyId.email"
+          [(ngModel)]="getGroupbyId.email"
+          name="email"
+          cFormControl
+          placeholder="email"
+        />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="website">Website</label>
+        <input
+          aria-label="website"
+          [value]="getGroupbyId.website"
+          [(ngModel)]="getGroupbyId.website"
+          name="website"
+          cFormControl
+          placeholder="website"
+        />
+      </div>
+      <div class="mb-3">
+        <label cLabel for="description">Description</label>
+        <textarea
+          aria-label="description"
+          type="textarea"
+          [value]="getGroupbyId.description"
+          [(ngModel)]="getGroupbyId.description"
+          name="description"
+          cFormControl
+          placeholder="description"
+        >
+        </textarea>
+      </div>
+    </c-modal-body>
+    <c-modal-footer>
+      <button [cModalToggle]="modal.id" cButton color="secondary" id="closeBtnEdit">
+        Cldose
+      </button>
+      <button cButton color="primary" type="submit">Save changes</button>
+    </c-modal-footer>
+  </form>
+</c-modal>

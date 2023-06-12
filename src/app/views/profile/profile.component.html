@@ -1,0 +1,217 @@
+<c-row>
+  <c-col xs="12" lg="4">
+    <c-card class="mb-4">
+      <c-card-header class="text-center"> Profile </c-card-header>
+      <c-card-body>
+        <div class="list-group">
+          <button
+            type="button"
+            class="list-group-item list-group-item-action active"
+            aria-current="true"
+          >
+            Account
+          </button>
+          <button type="button" class="list-group-item list-group-item-action">
+            Privacy
+          </button>
+          <button type="button" class="list-group-item list-group-item-action">
+            Help
+          </button>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+  <c-col lg="8">
+    <c-card class="mb-4">
+      <c-card-header class="text-center"> Account Settings </c-card-header>
+      <c-card-body *ngIf="data">
+        <table class="table table-striped">
+          <tr class="mb-3">
+            <th>Name</th>
+            <td>{{ data.name }}</td>
+<!-- 
+            <button [cModalToggle]="name.id" cButton class="mb-3">Edit</button>
+            <c-modal
+              #name
+              alignment="center"
+              id="name"
+            >
+              <c-modal-header>
+                <h5 cModalTitle>Edit Name</h5>
+                <button [cModalToggle]="name.id" cButtonClose id="btnsubname"></button>
+              </c-modal-header>
+              <form (ngSubmit)="editName()" method="put">
+                <c-modal-body>
+                  <label cLabel for="name">Name</label>
+                  <c-alert color="danger" *ngIf="msgName">
+                    {{ msgName }}
+                  </c-alert>
+                  <input
+                    aria-label="name"
+                    [value]="formData.name"
+                    [(ngModel)]="formData.name"
+                    name="name"
+                    cFormControl
+                    placeholder="Name"
+                    ng-model="name"
+                    required
+                  />
+                </c-modal-body>
+                <c-modal-footer>
+                  <button [cModalToggle]="name.id" cButton color="secondary">
+                    Close
+                  </button>
+                  <button cButton color="primary" type="submit">
+                    Save changes
+                  </button>
+                </c-modal-footer>
+              </form>
+            </c-modal> -->
+          </tr>
+          <tr class="mb-3">
+            <th>Email</th>
+            <td>{{ data.email }}</td>
+            <!-- <button [cModalToggle]="email.id" cButton class="mb-3">Edit</button>
+            <c-modal #email alignment="center" id="email">
+              <c-modal-header>
+                <h5 cModalTitle>Edit Email</h5>
+                <button [cModalToggle]="email.id" cButtonClose id="btnsubemail"></button>
+              </c-modal-header>
+              <form (ngSubmit)="editEmail()" method="put">
+                <c-modal-body>
+                  <label cLabel for="email">Email</label>
+                  <c-alert color="danger" *ngIf="msgEmail">
+                    {{ msgEmail }}
+                  </c-alert>
+                  <input
+                    aria-label="email"
+                    [value]="formData.email"
+                    [(ngModel)]="formData.email"
+                    name="email"
+                    cFormControl
+                    placeholder="Email"
+                  />
+                </c-modal-body>
+                <c-modal-footer>
+                  <button [cModalToggle]="email.id" cButton color="secondary">
+                    Close
+                  </button>
+                  <button cButton color="primary" type="submit">
+                    Save changes
+                  </button>
+                </c-modal-footer>
+              </form>
+            </c-modal> -->
+          </tr>
+          <tr class="mb-3">
+            <th>Phone</th>
+            <td>{{ data.phone }}</td>
+            <!-- <button [cModalToggle]="phone.id" cButton class="mb-3">Edit</button>
+            <c-modal #phone alignment="center" id="phone">
+              <c-modal-header>
+                <h5 cModalTitle>Edit Phone</h5>
+                <button [cModalToggle]="phone.id" cButtonClose id="btnsubphone"></button>
+              </c-modal-header>
+              <form (ngSubmit)="editPhone()" method="put">
+                <c-modal-body>
+                  <label cLabel for="phone">Phone</label>
+                  <c-alert color="danger" *ngIf="msgPhone">
+                    {{ msgPhone }}
+                  </c-alert>
+                  <input
+                    aria-label="phone"
+                    [value]="formData.phone"
+                    [(ngModel)]="formData.phone"
+                    name="phone"
+                    cFormControl
+                    placeholder="Phone"
+                  />
+                </c-modal-body>
+                <c-modal-footer>
+                  <button [cModalToggle]="phone.id" cButton color="secondary">
+                    Close
+                  </button>
+                  <button cButton color="primary" type="submit">
+                    Save changes
+                  </button>
+                </c-modal-footer>
+              </form>
+            </c-modal> -->
+          </tr>
+          <tr class="mb-3">
+            <th>Password</th>
+            <td>********</td>
+            <!-- <button [cModalToggle]="password.id" cButton class="mb-3">
+              Edit
+            </button>
+            <c-modal #password alignment="center" id="password">
+              <c-modal-header>
+                <h5 cModalTitle>Edit Password</h5>
+                <button [cModalToggle]="password.id" cButtonClose id="btnsubpw"></button>
+              </c-modal-header>
+              <form (ngSubmit)="editPassword()" method="put">
+                <c-modal-body>
+                  <c-alert color="danger" *ngIf="msg">
+                    {{ msg }}
+                  </c-alert>
+                  <label cLabel for="password">Password old</label>
+                  <input
+                    aria-label="password-old"
+                    type="password"
+                    name="password_old"
+                    [(ngModel)]="formPW.oldPW"
+                    cFormControl
+                    placeholder="Password"
+                  />
+                  <label cLabel for="password">Password new</label>
+                  <input
+                    aria-label="password-new"
+                    type="password"
+                    name="password_new"
+                    [(ngModel)]="formPW.newPW"
+                    cFormControl
+                    placeholder="Password"
+                  />
+                  <label cLabel for="password">Password confirm</label>
+                  <input
+                    aria-label="password-confirm"
+                    type="password"
+                    name="password_confirm"
+                    [(ngModel)]="formPW.confirmPW"
+                    cFormControl
+                    placeholder="Password"
+                  />
+                </c-modal-body>
+                <c-modal-footer>
+                  <button
+                    [cModalToggle]="password.id"
+                    cButton
+                    color="secondary"
+                  >
+                    Close
+                  </button>
+                  <button cButton color="primary" type="submit">
+                    Save changes
+                  </button>
+                </c-modal-footer>
+              </form>
+            </c-modal> -->
+          </tr>
+          <tr class="mb-3">
+            <th>Role</th>
+            <td>{{ data.role }}</td>
+          </tr>
+        </table>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+<script>
+  const myModal = document.getElementById("myModal");
+  const myInput = document.getElementById("myInput");
+
+  myModal.addEventListener("shown.bs.modal", () => {
+    myInput.focus();
+  });
+</script>

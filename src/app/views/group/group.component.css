@@ -1,0 +1,8 @@
+.table-container {
+    overflow-x: auto;
+  }
+
+  .m-table {
+    width: 100%; /* Đảm bảo bảng chiếm hết kích thước của phần tử chứa */
+    white-space: nowrap; /* Ngăn các nội dung bên trong bảng xuống dòng */
+  }

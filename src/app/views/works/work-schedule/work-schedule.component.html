@@ -1,0 +1,343 @@
+<c-row ngPreserveWhitespaces>
+  <c-col class="background-while ml-1 mr-1 shadow">
+    <!-- <c-container> -->
+      <c-row>
+        <c-col>
+          <c-card-header>
+            <h4 class="card-title mb-0">Work Shedule</h4>
+          </c-card-header>
+        </c-col>
+        <c-col>
+          <!-- <c-card-header style="float: right" *ngIf="checkRole()">
+            <button
+              [cModalToggle]="verticallyCenteredModal.id"
+              cButton
+              color="dark"
+              (click)="getDepartmentById()"
+            >
+              <svg [cIcon]="icons.cilPlus" size="sm" title="List Icon"></svg>
+              Add
+            </button>
+            <button
+              cButton
+              color="dark"
+              id="btnDelete"
+              disabled="{{ selectedIds.length == 0 }}"
+              (click)="deleteSelected()"
+            >
+              <svg [cIcon]="icons.cilTrash" size="sm" title="List Icon"></svg>
+              Delete
+            </button>
+          </c-card-header> -->
+        </c-col>
+      </c-row>
+    <!-- </c-container> -->
+    <c-card-body>
+      <div class="table-container">
+        <table cTable class="m-table" hover>
+          <thead>
+            <tr>
+              <th scope="col">
+                <input
+                  id="checkOne"
+                  type="checkbox"
+                  [(ngModel)]="selectAll"
+                  (change)="toggleSelectAll()"
+                />
+              </th>
+              <th scope="col">Channel</th>
+              <th scope="col">Total personnel</th>
+              <th scope="col">Total received</th>
+              <th scope="col">Date</th>
+              <th scope="col">%</th>
+              <!-- <th scope="col" *ngIf="checkRole()">Action</th> -->
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="data">
+            <tr *ngFor="let item of data; let i = index">
+              <th scope="row">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(item.id)"
+                  id="check{{ item.id }}"
+                  [(ngModel)]="checkboxes[item.id]"
+                  (change)="getId(item.id)"
+                />
+              </th>
+              <td>
+                Call
+              </td>
+              <td>
+                5
+              </td>
+              <td>
+                500
+              </td>
+              <td>
+                {{ formatDate(item.date) }}
+              </td>
+              <td>
+                5
+              </td>
+              <td>
+                <c-badge color="success">Valid</c-badge>
+              </td>
+              <!-- <td *ngIf="checkRole()">
+                <button
+                  [cModalToggle]="modal.id"
+                  cButton
+                  color="light"
+                  cTooltip = "Edit"
+                  cTooltipPlacement="top"
+                  (click)="getWorkScheduleById(item.id)"
+                >
+                  <svg
+                    [cIcon]="icons.cilPencil"
+                    size="sm"
+                    title="List Icon"
+                  ></svg>
+                </button>
+                <button 
+                  cButton 
+                  color="light"
+                  cTooltip = "Delete"
+                  cTooltipPlacement="top"
+                  (click)="delete(item.id)"
+                  >
+                  <svg
+                    [cIcon]="icons.cilTrash"
+                    size="sm"
+                    title="List Icon"
+                  ></svg>
+                </button>
+              </td> -->
+            </tr>
+            <tr colspan="1" [visible]="visible" cCollapse>
+              <b>
+                Users
+              </b>
+            </tr>
+            <tr [visible]="visible" cCollapse>
+              <td colspan="7" class="text-center" *ngIf="!data">
+                <c-spinner aria-hidden="true" size="sm"></c-spinner>
+              </td>
+              <th colSpan="7">
+                <table cTable hover>
+                  <thead>
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Status</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>
+                    <th scope="row">A</th>
+                    <td>First</td>
+                    <td>Last</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">B</th>
+                    <td>First</td>
+                    <td>Last</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">C</th>
+                    <td>First</td>
+                    <td>Last</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </th>
+            </tr>
+            <tr *ngIf="data.length == 0">
+              <td colspan="7" class="text-center">
+                <strong>No data</strong>
+              </td>
+          </tbody>
+        </table>
+        <!-- <table cTable class="m-table shadow" [visible]="visible" cCollapse hover>
+          <thead class="ml-1 mr-1">
+            <tr>
+              <th scope="col">
+                <input
+                  id="checkOne"
+                  type="checkbox"
+                  [(ngModel)]="selectAll"
+                  (change)="toggleSelectAll()"
+                />
+              </th>
+              <th scope="col">Channel</th>
+              <th scope="col">Total personnel</th>
+              <th scope="col">Total received</th>
+              <th scope="col">Date</th>
+              <th scope="col">%</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody class="ml-1 mr-1">
+            <tr *ngFor="let item of data; let i = index">
+              <th scope="row">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(item.id)"
+                  id="check{{ item.id }}"
+                  [(ngModel)]="checkboxes[item.id]"
+                  (change)="getId(item.id)"
+                />
+              </th>
+              <td>
+                Call
+              </td>
+              <td>
+                5
+              </td>
+              <td>
+                500
+              </td>
+              <td>
+                {{ formatDate(item.date) }}
+              </td>
+              <td>
+                5
+              </td>
+              <td>
+                <c-badge color="success">Valid</c-badge>
+              </td>
+            </tr>
+          </tbody>
+        </table> -->
+      </div>
+    </c-card-body>
+    <c-card-footer *ngIf="total && total.length > 1">
+      <c-pagination aria-label="Page navigation example" size="sm">
+        <li cPageItem>
+          <a
+            cPageLink
+            aria-label="Previous"
+            id="btnPrevious"
+            (click)="previousPage()"
+          >
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li cPageItem *ngFor="let page of total" [class.active]="page == pages">
+          <a cPageLink (click)="getWorkSchedules(page)">
+            {{ page }}
+          </a>
+        </li>
+
+        <li cPageItem>
+          <a cPageLink aria-label="Next" id="btnNext" (click)="nextPage()">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </c-pagination>
+    </c-card-footer>
+  </c-col>
+</c-row>
+
+<!-- <c-modal
+
+  #verticallyCenteredModal
+  alignment="center"
+  id="verticallyCenteredModal"
+>
+  <c-modal-header>
+    <h5 cModalTitle>Create Group</h5>
+    <button [cModalToggle]="verticallyCenteredModal.id" cButtonClose></button>
+  </c-modal-header>
+  <form ngNativeValidate (ngSubmit)="onSubmit()">
+    <c-modal-body *ngIf="formData">
+      <div class="mb-3">
+        <label cLabel for="name">Department <span class="text-danger">*</span></label>
+        <select
+          aria-label="department"
+          [value]="formData.departmentId"
+          [(ngModel)]="formData.departmentId"
+          name="departmentId"
+          cSelect
+          placeholder="department"
+          required
+        >
+          <option value="">Select Department</option>
+          <option *ngFor="let item of dataDepartment" [value]="item.id">
+            {{ item.name }}
+          </option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label cLabel for="description">Date <span class="text-danger">*</span></label>
+        <input
+          aria-label="date"
+          type="date"
+          [value]="formData.date"
+          [(ngModel)]="formData.date"
+          name="date"
+          cFormControl
+          placeholder="date"
+          required
+        />
+      </div>
+    </c-modal-body>
+    <c-modal-footer>
+      <button
+        [cModalToggle]="verticallyCenteredModal.id"
+        cButton
+        color="secondary"
+        id="closeBtn"
+      >
+        Close
+      </button>
+      <button cButton color="primary" type="submit">Save</button>
+    </c-modal-footer>
+  </form>
+</c-modal>
+
+<c-modal #modal alignment="center" id="modal">
+  <c-modal-header>
+    <h5 cModalTitle>Edit Work Schedule</h5>
+    <button [cModalToggle]="modal.id" cButtonClose></button>
+  </c-modal-header>
+  <form (ngSubmit)="edit()" ngNativeValidate>
+    <c-modal-body *ngIf="formDataUpdate">
+      <div class="mb-3">
+        <label cLabel for="name">Department <span class="text-danger">*</span></label>
+        <select
+          aria-label="department"
+          [value]="formDataUpdate.departmentId"
+          [(ngModel)]="formDataUpdate.departmentId"
+          name="departmentId"
+          cSelect
+          placeholder="department"
+          required
+        >
+          <option value="">Select Department</option>
+          <option *ngFor="let item of dataDepartment" [value]="item.id">
+            {{ item.name }}
+          </option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label cLabel for="description">Date <span class="text-danger">*</span></label>
+        <input
+          aria-label="date"
+          type="date"
+          [value]="formDataUpdate.date"
+          [(ngModel)]="formDataUpdate.date"
+          name="date"
+          cFormControl
+          placeholder="date"
+          required
+        />
+      </div>
+    </c-modal-body>
+    <c-modal-footer>
+      <button [cModalToggle]="modal.id" cButton color="secondary" id="closeBtnEdit">
+        Cldose
+      </button>
+      <button cButton color="primary" type="submit">Save changes</button>
+    </c-modal-footer>
+  </form>
+</c-modal> -->
